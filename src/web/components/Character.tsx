@@ -29,7 +29,8 @@ export function Character({
   const waiting =
     s.activity === 'waiting_permission' || s.activity === 'waiting_question'
   const idle = IDLE.has(s.activity)
-  const ringStyle = { '--ring': projectColor(s.project.name) } as CSSProperties
+  const color = projectColor(s.project.name)
+  const ringStyle = { '--ring': color } as CSSProperties
   const name = agentName(s.sessionId)
   const work = s.title ?? PHRASE[s.activity] ?? s.activity
 
@@ -40,10 +41,17 @@ export function Character({
       onClick={() => onSelect(s)}
     >
       {waiting && <span className="bubble">❗</span>}
-      <span className="speech">{name} is {work}</span>
+      <span className="speech">
+        <b>{name}</b> · {s.project.name}
+        <br />
+        {work}
+      </span>
       <span className="ring" />
       <span className="body">{idle ? '😴' : '🤖'}</span>
       <span className="agentname">{name}</span>
+      <span className="project-tag" style={{ color }}>
+        {s.project.name}
+      </span>
       <span className="worktoday">{work}</span>
       <span className="meter">
         <i style={{ width: `${Math.min(s.context.pct, 100)}%` }} />

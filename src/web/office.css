@@ -79,6 +79,14 @@
   white-space: nowrap;
   margin-top: 3px;
 }
+.project-tag {
+  font-size: 8px;
+  font-weight: 600;
+  max-width: 74px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .worktoday {
   font-size: 8px;
   color: #9a8d78;
