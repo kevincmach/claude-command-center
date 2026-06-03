@@ -55,7 +55,11 @@ cross-platform, no cloud.
 ## Cross-cutting principles
 
 - **Zero hardcoded paths.** Auto-discover `~/.claude`, override via flag/env/config.
-- **One-command run.** `npx claude-command-center` or clone + `npm start`. No build step where avoidable.
+- **One-command run.** `npx claude-command-center` or clone + `npm start`. The
+  published package ships prebuilt frontend assets, so end users never run a build.
+- **Stack:** TypeScript · Node + Express · React + Vite · React built-in state ·
+  SSE · `node:test` · `npx`. Chosen as industry-standard, well-documented,
+  transferable tech (see Tier 0 spec for rationale).
 - **Read-only until Tier 3.** Safe by default; control is explicit and opt-in.
 - **Privacy first.** Vault logs metadata/titles/events by default, not raw prompt
   content (transcripts can contain secrets); content logging is opt-in.

@@ -24,15 +24,30 @@ Tier 0's UI is a plain board, not a game.
 
 ## Tech stack & rationale
 
-- **Node.js** — every Claude Code user already has it; no extra runtime.
-- **Server:** Fastify (small, fast) serving static files + JSON + SSE. SSE
-  (not WebSocket) because Tier 0 push is one-directional and SSE traverses
-  phones/proxies trivially with auto-reconnect.
-- **File watching:** `chokidar` for the sessions dir + active transcripts;
-  plus a short interval timer for pid-liveness (process death is not a file event).
-- **Frontend:** vanilla HTML/CSS/JS, no build step (honors "clone and run").
-  A framework/canvas arrives only when Tier 1 needs the office.
-- Keep the dependency list tiny — this is a tool people clone and trust.
+Chosen to fit the tool *and* to be high-value, beginner-friendly tech for the
+author to learn (industry-standard, well-documented, transferable).
+
+- **Language:** TypeScript across backend and frontend — types catch mistakes
+  early, and a shared `Session` type keeps the API contract honest. In-demand and
+  effectively required in professional work.
+- **Runtime:** Node.js — every Claude Code user already has it; no extra runtime.
+- **Server:** Express — the most common, best-documented Node web framework
+  (the Node equivalent of Flask/FastAPI). Serves the built frontend, JSON, and SSE.
+  Maximum learning support and job relevance.
+- **Live transport:** SSE (not WebSocket) — Tier 0 push is one-directional and SSE
+  traverses phones/proxies trivially with auto-reconnect. A plain `POST` covers
+  commands when control arrives in Tier 3.
+- **File watching:** `chokidar` for the sessions dir + active transcripts; plus a
+  short interval timer for pid-liveness (process death is not a file event).
+- **Frontend:** React + Vite (TypeScript). React is the dominant frontend skill and
+  maps cleanly onto the later office (components ↔ characters/rooms). Vite bundles
+  it with instant dev reload. State: React's built-in `useState`/`useContext` — no
+  Redux; reach for Zustand only if a later tier needs it.
+- **Tests:** Node's built-in `node:test` — zero extra dependency.
+- **Build/dev:** backend runs via `tsx` (no build in dev); frontend builds with
+  Vite. The `npx` package ships the **prebuilt** frontend assets, so end users
+  never run a build.
+- Keep the dependency list lean — this is a tool people clone and trust.
 
 ## Architecture — components (isolated units)
 
@@ -70,10 +85,11 @@ Each unit has one responsibility, a typed interface, and is independently testab
    `session-model` refresh for affected sessions only.
 10. **`event-log`** (Obsidian writer) — subscribes to `session-model` events,
     writes the vault (see below). Append-only, idempotent (dedupe by event key).
-11. **`server`** — Fastify. Routes: static UI, `GET /api/state` (snapshot array),
-    `GET /api/stream` (SSE of session events). Binds per `config.host`.
-12. **`web/`** — vanilla UI: fetches `/api/state`, subscribes to `/api/stream`,
-    renders project-grouped session cards; reconnects automatically.
+11. **`server`** — Express. Routes: serves the built React app, `GET /api/state`
+    (snapshot array), `GET /api/stream` (SSE of session events). Binds per `config.host`.
+12. **`web/`** — React + Vite app: fetches `/api/state`, subscribes to
+    `/api/stream` via `EventSource`, renders project-grouped session cards from a
+    single in-memory store (built-in state); reconnects automatically.
 
 ## Data flow
 
