@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Session } from '../shared/types.js'
 import { subscribe } from './api.js'
-import { Board } from './components/Board.js'
+import { Office } from './components/Office.js'
 
 export function App() {
   const [sessions, setSessions] = useState<Session[]>([])
@@ -43,7 +43,7 @@ export function App() {
           🔔 {needsAttention.length} session(s) need you
         </div>
       )}
-      <Board sessions={sessions} />
+      <Office sessions={sessions} />
     </div>
   )
 }
