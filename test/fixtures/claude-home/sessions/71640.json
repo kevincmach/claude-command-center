@@ -1,0 +1,4 @@
+{ "pid": 71640, "sessionId": "bbbb2222", "cwd": "/tmp/Other",
+  "status": "waiting", "waitingFor": "permission prompt",
+  "model": "claude-sonnet-4-6", "version": "2.1.159", "entrypoint": "cli",
+  "startedAt": 1780283343226, "updatedAt": 1780459098144 }

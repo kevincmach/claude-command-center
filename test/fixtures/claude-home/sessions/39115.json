@@ -1,0 +1,5 @@
+{ "pid": 39115, "sessionId": "aaaa1111", "cwd": "/tmp/Demo",
+  "status": "busy", "model": "claude-opus-4-8", "version": "2.1.161",
+  "entrypoint": "cli", "kind": "interactive",
+  "startedAt": 1780459080062, "updatedAt": 1780459164397,
+  "bridgeSessionId": "session_x" }
