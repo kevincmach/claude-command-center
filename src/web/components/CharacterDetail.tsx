@@ -1,4 +1,5 @@
 import type { Session } from '../../shared/types.js'
+import { agentName } from '../agentName.js'
 
 export function CharacterDetail({
   s,
@@ -10,7 +11,8 @@ export function CharacterDetail({
   return (
     <div className="detail-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
-        <h3>{s.title ?? s.sessionId.slice(0, 8)}</h3>
+        <h3>🤖 {agentName(s.sessionId)}</h3>
+        <p className="detail-row">✏️ {s.title ?? '—'}</p>
         <p className="detail-row">📁 {s.project.name}</p>
         <p className="detail-row">⚙️ {s.activity}</p>
         <p className="detail-row">🧠 {s.model ?? '—'}</p>

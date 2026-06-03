@@ -1,8 +1,23 @@
 import type { CSSProperties } from 'react'
 import type { Session } from '../../shared/types.js'
 import { projectColor } from '../projectColor.js'
+import { agentName } from '../agentName.js'
 
 const IDLE: ReadonlySet<string> = new Set(['idle', 'done', 'unknown', 'planning'])
+
+// Friendly phrase for what an agent is doing, when there's no auto-title yet.
+const PHRASE: Record<string, string> = {
+  working: 'coding',
+  researching_web: 'researching the web',
+  reading: 'reading the codebase',
+  meeting: 'leading sub-agents',
+  waiting_permission: 'waiting on you',
+  waiting_question: 'asked you a question',
+  idle: 'taking a break',
+  done: 'wrapping up',
+  planning: 'planning',
+  unknown: 'idling',
+}
 
 export function Character({
   s,
@@ -15,18 +30,21 @@ export function Character({
     s.activity === 'waiting_permission' || s.activity === 'waiting_question'
   const idle = IDLE.has(s.activity)
   const ringStyle = { '--ring': projectColor(s.project.name) } as CSSProperties
+  const name = agentName(s.sessionId)
+  const work = s.title ?? PHRASE[s.activity] ?? s.activity
 
   return (
     <button
       className={`char${idle ? ' char--idle' : ''}`}
       style={ringStyle}
       onClick={() => onSelect(s)}
-      title={s.title ?? s.sessionId}
     >
       {waiting && <span className="bubble">❗</span>}
+      <span className="speech">{name} is {work}</span>
       <span className="ring" />
       <span className="body">{idle ? '😴' : '🤖'}</span>
-      <span className="nameplate">{s.title ?? s.project.name}</span>
+      <span className="agentname">{name}</span>
+      <span className="worktoday">{work}</span>
       <span className="meter">
         <i style={{ width: `${Math.min(s.context.pct, 100)}%` }} />
       </span>
