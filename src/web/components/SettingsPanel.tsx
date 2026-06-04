@@ -3,21 +3,30 @@ import { getSettings, updateSettings, type SettingsView } from '../api.js'
 
 export function SettingsPanel({ onClose }: { onClose: () => void }) {
   const [s, setS] = useState<SettingsView | null>(null)
+  const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
-    getSettings().then(setS)
+    getSettings()
+      .then(setS)
+      .catch(() => setErr('could not load settings — is the server up to date?'))
   }, [])
 
   async function toggleSummaries(v: boolean) {
     setS((prev) => (prev ? { ...prev, summaries: v } : prev))
-    setS(await updateSettings({ summaries: v }))
+    try {
+      setS(await updateSettings({ summaries: v }))
+    } catch {
+      setErr('could not save setting')
+    }
   }
 
   return (
     <div className="detail-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
         <h3>⚙ Settings</h3>
-        {!s ? (
+        {err ? (
+          <p className="detail-row setting-warn">⚠ {err}</p>
+        ) : !s ? (
           <p className="detail-row">Loading…</p>
         ) : (
           <label className="setting-row">

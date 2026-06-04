@@ -4,6 +4,7 @@ export type SettingsView = Settings & { claudeAvailable: boolean }
 
 export async function getSettings(): Promise<SettingsView> {
   const r = await fetch('/api/settings')
+  if (!r.ok) throw new Error(`settings ${r.status}`)
   return r.json()
 }
 
@@ -15,6 +16,7 @@ export async function updateSettings(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch),
   })
+  if (!r.ok) throw new Error(`settings ${r.status}`)
   return r.json()
 }
 
