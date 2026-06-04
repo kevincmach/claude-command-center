@@ -311,3 +311,36 @@
   z-index: 2;
 }
 .char-sprite { filter: drop-shadow(0 3px 1px rgba(0, 0, 0, 0.55)); }
+
+/* ============ Tier 2a · irregular floor-plan (one building) ============ */
+.office {
+  margin-top: 12px;
+  gap: 0;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  grid-auto-rows: minmax(150px, auto);
+  grid-template-areas:
+    "work    work    library"
+    "work    work    break"
+    "lounge  gym     meeting";
+  border: 4px solid #2c2118;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px #0008;
+}
+/* rooms tile flush into the building (shared walls, no rounded corners) */
+.room {
+  min-height: 150px;
+  border-width: 2px;
+  border-radius: 0;
+}
+@media (max-width: 640px) {
+  .office {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: minmax(140px, auto);
+    grid-template-areas:
+      "work    work"
+      "library break"
+      "lounge  gym"
+      "meeting meeting";
+  }
+}

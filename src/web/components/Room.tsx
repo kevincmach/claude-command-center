@@ -22,7 +22,10 @@ export function Room({
     .filter(Boolean)
 
   return (
-    <section className={`room${hot ? ' room--hot' : ''}`}>
+    <section
+      className={`room${hot ? ' room--hot' : ''}`}
+      style={{ gridArea: room.id }}
+    >
       <header className="room-head">
         <span className="room-furn">{room.furniture}</span>
         {room.emoji} {room.label}
