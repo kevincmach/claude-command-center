@@ -24,9 +24,11 @@ const PHRASE: Record<string, string> = {
 export function Character({
   s,
   onSelect,
+  selected = false,
 }: {
   s: Session
   onSelect: (s: Session) => void
+  selected?: boolean
 }) {
   const waiting =
     s.activity === 'waiting_permission' || s.activity === 'waiting_question'
@@ -39,7 +41,9 @@ export function Character({
 
   return (
     <button
-      className={`char${idle ? ' char--idle' : ''}`}
+      className={`char${idle ? ' char--idle' : ''}${
+        selected ? ' char--selected' : ''
+      }`}
       style={ringStyle}
       onClick={() => onSelect(s)}
     >

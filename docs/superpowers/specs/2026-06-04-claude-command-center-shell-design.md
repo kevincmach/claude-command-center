@@ -3,6 +3,7 @@
 **Project:** Claude Command Center
 **Status:** Approved design — ready for implementation plan (2026-06-04)
 **Parent:** promotes the parked **"Navigation & Management system"** roadmap item into a real tier.
+**Plan:** [2026-06-04-claude-command-center-shell.md](../plans/2026-06-04-claude-command-center-shell.md)
 
 ## Goal
 
