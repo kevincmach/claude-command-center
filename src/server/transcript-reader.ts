@@ -62,7 +62,11 @@ export async function readTranscriptInfo(file: string): Promise<TranscriptInfo> 
         continue // skip a partially-written final line
       }
       if (d.type === 'ai-title' && d.title) info.title = d.title
-      if (d.type === 'queue-operation') info.queuedCount++
+      if (d.type === 'queue-operation') {
+        if (d.operation === 'enqueue') info.queuedCount++
+        else if (d.operation === 'dequeue')
+          info.queuedCount = Math.max(0, info.queuedCount - 1)
+      }
       if (d.type === 'permission-mode' && d.permissionMode) {
         info.permissionMode = d.permissionMode
       }

@@ -53,6 +53,7 @@ async function buildSession(
     cost: { usd: estimateCost(model, info.cost) },
     subAgents: info.subAgents,
     queuedCount: info.queuedCount,
+    permissionMode: info.permissionMode,
     startedAt: rec.startedAt ?? 0,
     updatedAt: rec.updatedAt ?? 0,
   }

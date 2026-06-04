@@ -1,5 +1,6 @@
 import type { Session } from '../../shared/types.js'
 import { agentName } from '../agentName.js'
+import { modelLabel, permissionBadge } from '../badges.js'
 
 export function CharacterDetail({
   s,
@@ -15,12 +16,20 @@ export function CharacterDetail({
         <p className="detail-row">✏️ {s.title ?? '—'}</p>
         <p className="detail-row">📁 {s.project.name}</p>
         <p className="detail-row">⚙️ {s.activity}</p>
-        <p className="detail-row">🧠 {s.model ?? '—'}</p>
+        <p className="detail-row">🧠 {modelLabel(s.model)}</p>
+        {s.permissionMode && s.permissionMode !== 'normal' && (
+          <p className="detail-row">
+            {permissionBadge(s.permissionMode)?.icon ?? '🔓'} {s.permissionMode}
+          </p>
+        )}
         <p className="detail-row">
           📊 {s.context.pct}% context · ${s.cost.usd.toFixed(2)}
         </p>
         {s.subAgents > 0 && (
           <p className="detail-row">🐤 {s.subAgents} sub-agent(s)</p>
+        )}
+        {s.queuedCount > 0 && (
+          <p className="detail-row">📥 {s.queuedCount} queued</p>
         )}
         <p className="detail-id">{s.sessionId}</p>
         <button className="detail-close" onClick={onClose}>

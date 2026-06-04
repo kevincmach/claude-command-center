@@ -24,6 +24,18 @@ test('extracts latest title, tool, and context tokens', async () => {
   assert.ok(info.cost.outputTokens >= 1000) // summed across turns
 })
 
+test('queuedCount is net pending (enqueue x2 - dequeue x1), clamped at 0', async () => {
+  const p = findTranscriptPath(projectsDir, 'aaaa1111')!
+  const info = await readTranscriptInfo(p)
+  assert.equal(info.queuedCount, 1)
+})
+
+test('permissionMode reflects the last permission-mode entry', async () => {
+  const p = findTranscriptPath(projectsDir, 'aaaa1111')!
+  const info = await readTranscriptInfo(p)
+  assert.equal(info.permissionMode, 'bypassPermissions')
+})
+
 test('missing file returns empty info, no throw', async () => {
   const info = await readTranscriptInfo('/no/such.jsonl')
   assert.equal(info.title, null)
