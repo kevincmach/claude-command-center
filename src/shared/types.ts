@@ -53,6 +53,7 @@ export interface Session {
   cost: { usd: number }
   subAgents: number
   queuedCount: number
+  permissionMode: string | null
   startedAt: number
   updatedAt: number
 }

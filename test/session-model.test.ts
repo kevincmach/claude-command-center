@@ -29,6 +29,13 @@ test('refresh builds normalized sessions from fixtures', async () => {
   assert.equal(events.filter((e) => e.kind === 'created').length, 2)
 })
 
+test('permissionMode from the transcript appears on the built session', async () => {
+  const store = new SessionStore(cfg, () => 1780459165000)
+  await store.refresh()
+  const demo = store.all().find((s) => s.sessionId === 'aaaa1111')!
+  assert.equal(demo.permissionMode, 'bypassPermissions')
+})
+
 test('second refresh with no change emits nothing', async () => {
   const store = new SessionStore(cfg, () => 1780459165000)
   await store.refresh()
