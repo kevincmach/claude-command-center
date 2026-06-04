@@ -17,6 +17,10 @@ export function Room({
     (s) =>
       s.activity === 'waiting_permission' || s.activity === 'waiting_question',
   )
+  const decor = (ROOM_DECOR[room.id] ?? [])
+    .map((name) => PROP_URL[name])
+    .filter(Boolean)
+
   return (
     <section className={`room${hot ? ' room--hot' : ''}`}>
       <header className="room-head">
@@ -24,18 +28,18 @@ export function Room({
         {room.emoji} {room.label}
         <span className="room-count">{sessions.length}</span>
       </header>
-      <div className="room-decor">
-        {(ROOM_DECOR[room.id] ?? [])
-          .map((name) => PROP_URL[name])
-          .filter(Boolean)
-          .map((url, i) => (
+      <div className="room-stage">
+        <div className={`room-floor floor--${room.floor}`} />
+        <div className="room-decor">
+          {decor.map((url, i) => (
             <img key={i} className="prop" src={url} alt="" draggable={false} />
           ))}
-      </div>
-      <div className="crew">
-        {sessions.map((s) => (
-          <Character key={s.sessionId} s={s} onSelect={onSelect} />
-        ))}
+        </div>
+        <div className="crew">
+          {sessions.map((s) => (
+            <Character key={s.sessionId} s={s} onSelect={onSelect} />
+          ))}
+        </div>
       </div>
     </section>
   )

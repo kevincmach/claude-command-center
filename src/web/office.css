@@ -220,3 +220,94 @@
   width: auto;
 }
 .crew { position: relative; z-index: 1; }
+
+/* ============ Tier 2a · room environment (floors, walls, shadows) ============ */
+.office { gap: 6px; }
+
+.room {
+  min-height: 184px;
+  padding: 0;
+  background: none;
+  border: 3px solid #2c2118;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.room--hot { border-color: #ffb84d; }
+
+/* the header becomes a wall band with a little sign */
+.room-head {
+  margin: 0;
+  padding: 7px 10px;
+  background: linear-gradient(#5a4636, #4a3a2a);
+  border-bottom: 3px solid #36281c;
+  color: #e8c98a;
+  position: relative;
+  z-index: 3;
+}
+.room-count { color: #c4a878; }
+
+/* the playable area */
+.room-stage { position: relative; flex: 1; }
+
+.room-floor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  box-shadow: inset 0 20px 26px -20px #000a;
+}
+.floor--wood {
+  background:
+    repeating-linear-gradient(90deg, #00000018 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, #8a6240 0 13px, #7d5636 13px 26px);
+}
+.floor--carpet {
+  background:
+    repeating-linear-gradient(45deg, #4a5d54 0 9px, #44564f 9px 18px);
+}
+.floor--tile {
+  background:
+    conic-gradient(#d8c9b0 90deg, #c2b094 90deg 180deg, #d8c9b0 180deg 270deg, #c2b094 270deg)
+    0 0 / 34px 34px;
+  opacity: 0.92;
+}
+.floor--mat {
+  background:
+    repeating-linear-gradient(0deg, #2f3338 0 16px, #2a2e32 16px 32px),
+    repeating-linear-gradient(90deg, #00000022 0 1px, transparent 1px 32px);
+}
+
+/* furniture sits a touch back, against the wall, with a grounding shadow */
+.room-decor {
+  position: absolute;
+  bottom: 26px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 6px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 1;
+}
+.prop {
+  height: 54px;
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* characters stand in front, lower */
+.crew {
+  position: absolute;
+  bottom: 6px;
+  left: 8px;
+  right: 8px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  z-index: 2;
+}
+.char-sprite { filter: drop-shadow(0 3px 1px rgba(0, 0, 0, 0.55)); }
