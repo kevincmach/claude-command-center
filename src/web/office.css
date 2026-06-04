@@ -186,6 +186,8 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+  /* Modal: sit above every in-office stacking context (max local z-index is 5). */
+  z-index: 100;
 }
 .detail {
   background: #1c1822;
