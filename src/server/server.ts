@@ -3,7 +3,9 @@ import type { SessionStore } from './session-model.js'
 import type { Hub } from './watcher.js'
 import type { SettingsStore } from './settings.js'
 import type { SummaryService } from './summary-service.js'
+import type { Settings } from '../shared/types.js'
 import { readSessionPage } from './summary-writer.js'
+import { renderHtmlPage } from './markdown.js'
 
 export interface ServerDeps {
   settings: SettingsStore
@@ -48,10 +50,10 @@ export function createServer(
 
   app.patch('/api/settings', (req, res) => {
     const wasOff = !deps.settings.get().summaries
-    const patch =
-      typeof req.body?.summaries === 'boolean'
-        ? { summaries: req.body.summaries as boolean }
-        : {}
+    const patch: Partial<Settings> = {}
+    if (typeof req.body?.summaries === 'boolean') patch.summaries = req.body.summaries
+    if (req.body?.summaryView === 'html' || req.body?.summaryView === 'markdown')
+      patch.summaryView = req.body.summaryView
     const next = deps.settings.patch(patch)
     if (wasOff && next.summaries) deps.onSummariesEnabled?.()
     res.json({ ...next, claudeAvailable: deps.claudeAvailable })
@@ -68,7 +70,18 @@ export function createServer(
       res.status(404).type('text/plain').send('no vault page yet')
       return
     }
-    res.type('text/markdown; charset=utf-8').send(md)
+    const q = typeof req.query.format === 'string' ? req.query.format : ''
+    const fmt =
+      q === 'md' || q === 'markdown'
+        ? 'markdown'
+        : q === 'html'
+          ? 'html'
+          : (deps.settings.get().summaryView ?? 'html')
+    if (fmt === 'markdown') {
+      res.type('text/markdown; charset=utf-8').send(md)
+    } else {
+      res.type('text/html; charset=utf-8').send(renderHtmlPage(id, md))
+    }
   })
 
   app.post('/api/sessions/:id/summarize', async (req, res) => {

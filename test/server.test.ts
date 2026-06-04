@@ -81,6 +81,23 @@ test('GET /api/sessions/:id/page serves the vault markdown; 404 when missing', a
   srv.close()
 })
 
+test('page route renders HTML by default and raw markdown on ?format=md', async () => {
+  const store = new SessionStore(cfg, () => 1780459165000)
+  await store.refresh()
+  const app = createServer(store, new Hub(store), here, makeDeps(false))
+  const srv = app.listen(0)
+  const { port } = srv.address() as AddressInfo
+  const htmlRes = await fetch(`http://127.0.0.1:${port}/api/sessions/aaaa1111/page`)
+  assert.match(htmlRes.headers.get('content-type') ?? '', /text\/html/)
+  assert.match(await htmlRes.text(), /<h2>Summary<\/h2>/)
+  const mdRes = await fetch(
+    `http://127.0.0.1:${port}/api/sessions/aaaa1111/page?format=md`,
+  )
+  assert.match(mdRes.headers.get('content-type') ?? '', /text\/markdown/)
+  assert.match(await mdRes.text(), /## Summary/)
+  srv.close()
+})
+
 test('PATCH /api/settings toggles summaries', async () => {
   const store = new SessionStore(cfg, () => 1780459165000)
   await store.refresh()

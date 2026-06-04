@@ -73,6 +73,7 @@ export interface Config {
 
 export interface Settings {
   summaries: boolean
+  summaryView?: 'html' | 'markdown'
 }
 
 export type SummaryStatus = 'written' | 'skipped' | 'disabled' | 'error'

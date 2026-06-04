@@ -20,6 +20,15 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
     }
   }
 
+  async function setView(v: 'html' | 'markdown') {
+    setS((prev) => (prev ? { ...prev, summaryView: v } : prev))
+    try {
+      setS(await updateSettings({ summaryView: v }))
+    } catch {
+      setErr('could not save setting')
+    }
+  }
+
   return (
     <div className="detail-backdrop" onClick={onClose}>
       <div className="detail" onClick={(e) => e.stopPropagation()}>
@@ -42,6 +51,20 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
                 <em className="setting-warn"> — `claude` CLI not found</em>
               )}
             </span>
+          </label>
+        )}
+        {s && (
+          <label className="setting-row">
+            <span>
+              Summary view <small>(how the “open summary” link renders)</small>
+            </span>
+            <select
+              value={s.summaryView ?? 'html'}
+              onChange={(e) => setView(e.target.value as 'html' | 'markdown')}
+            >
+              <option value="html">Rendered (HTML)</option>
+              <option value="markdown">Raw (Markdown)</option>
+            </select>
           </label>
         )}
         <button className="detail-close" onClick={onClose}>

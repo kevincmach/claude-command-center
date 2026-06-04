@@ -24,7 +24,10 @@ export function main(argv = process.argv.slice(2)): void {
   const log = new EventLog(cfg.vaultPath)
   hub.subscribe((ev) => log.record(ev))
 
-  const settings = new SettingsStore(cfg.settingsPath, { summaries: false })
+  const settings = new SettingsStore(cfg.settingsPath, {
+    summaries: false,
+    summaryView: 'html',
+  })
   const claudeAvailable = isClaudeAvailable(cfg.claudeBin)
   const summaryService = new SummaryService(
     cfg,
