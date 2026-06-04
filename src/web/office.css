@@ -355,3 +355,22 @@
       "meeting meeting";
   }
 }
+
+.gear {
+  all: unset;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.gear:hover { opacity: 1; }
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  margin: 6px 0;
+  cursor: pointer;
+}
+.setting-row small { color: #9a8d78; }
+.setting-warn { color: #ffb84d; font-style: normal; }

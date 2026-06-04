@@ -1,4 +1,29 @@
-import type { Session } from '../shared/types.js'
+import type { Session, Settings, SummaryResult } from '../shared/types.js'
+
+export type SettingsView = Settings & { claudeAvailable: boolean }
+
+export async function getSettings(): Promise<SettingsView> {
+  const r = await fetch('/api/settings')
+  return r.json()
+}
+
+export async function updateSettings(
+  patch: Partial<Settings>,
+): Promise<SettingsView> {
+  const r = await fetch('/api/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  })
+  return r.json()
+}
+
+export async function summarizeSession(id: string): Promise<SummaryResult> {
+  const r = await fetch(`/api/sessions/${encodeURIComponent(id)}/summarize`, {
+    method: 'POST',
+  })
+  return r.json()
+}
 
 export function subscribe(
   onSnapshot: (s: Session[]) => void,

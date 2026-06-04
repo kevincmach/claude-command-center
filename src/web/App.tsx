@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import type { Session } from '../shared/types.js'
 import { subscribe } from './api.js'
 import { Office } from './components/Office.js'
+import { SettingsPanel } from './components/SettingsPanel.js'
 
 export function App() {
   const [sessions, setSessions] = useState<Session[]>([])
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     return subscribe(
@@ -37,13 +39,24 @@ export function App() {
         minHeight: '100vh',
       }}
     >
-      <h1>🎮 Claude Command Center</h1>
+      <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        🎮 Claude Command Center
+        <button
+          className="gear"
+          onClick={() => setShowSettings(true)}
+          title="Settings"
+          aria-label="Settings"
+        >
+          ⚙
+        </button>
+      </h1>
       {needsAttention.length > 0 && (
         <div style={{ background: '#5c1111', padding: 10, borderRadius: 8 }}>
           🔔 {needsAttention.length} session(s) need you
         </div>
       )}
       <Office sessions={sessions} />
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     </div>
   )
 }
