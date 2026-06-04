@@ -2,7 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SessionStore } from '../src/server/session-model.js'
+import { SessionStore, isSelfSummarizer } from '../src/server/session-model.js'
+import { SUMMARIZER_CWD } from '../src/server/config.js'
 import type { Config } from '../src/shared/types.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -37,6 +38,17 @@ test('permissionMode from the transcript appears on the built session', async ()
   await store.refresh()
   const demo = store.all().find((s) => s.sessionId === 'aaaa1111')!
   assert.equal(demo.permissionMode, 'bypassPermissions')
+})
+
+test('isSelfSummarizer flags records in the summarizer cwd', () => {
+  assert.equal(
+    isSelfSummarizer({ pid: 1, sessionId: 'x', cwd: SUMMARIZER_CWD }),
+    true,
+  )
+  assert.equal(
+    isSelfSummarizer({ pid: 1, sessionId: 'x', cwd: '/home/u/proj' }),
+    false,
+  )
 })
 
 test('second refresh with no change emits nothing', async () => {
