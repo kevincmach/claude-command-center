@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { Session } from '../../shared/types.js'
 import { projectColor } from '../projectColor.js'
 import { agentName } from '../agentName.js'
+import characterSprite from '../assets/character.png'
 
 const IDLE: ReadonlySet<string> = new Set(['idle', 'done', 'unknown', 'planning'])
 
@@ -47,7 +48,7 @@ export function Character({
         {work}
       </span>
       <span className="ring" />
-      <span className="body">{idle ? '😴' : '🤖'}</span>
+      <img className="char-sprite" src={characterSprite} alt="" draggable={false} />
       <span className="agentname">{name}</span>
       <span className="project-tag" style={{ color }}>
         {s.project.name}

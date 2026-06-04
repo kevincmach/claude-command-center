@@ -68,7 +68,13 @@
   border: 2px solid var(--ring, #888);
   opacity: 0.9;
 }
-.body { font-size: 24px; line-height: 1; }
+.char-sprite {
+  image-rendering: pixelated;
+  height: 56px;
+  width: auto;
+  display: block;
+}
+.char--idle .char-sprite { filter: grayscale(0.4) brightness(0.8); }
 .agentname {
   font-size: 10px;
   font-weight: 700;
@@ -192,3 +198,25 @@
   padding: 6px 12px;
   cursor: pointer;
 }
+
+/* Tier 2a: furnished rooms with real sprites */
+.room { min-height: 160px; }
+.room-decor {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 6px;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+.prop {
+  image-rendering: pixelated;
+  height: 48px;
+  width: auto;
+}
+.crew { position: relative; z-index: 1; }
