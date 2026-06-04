@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "description": "A LAN-served virtual office for your live Claude Code sessions.",
   "type": "module",
-  "bin": { "claude-command-center": "bin/cli.mjs" },
+  "bin": {
+    "claude-command-center": "bin/cli.mjs"
+  },
   "scripts": {
     "dev:server": "tsx watch src/server/index.ts",
     "dev:web": "vite",
@@ -12,7 +14,10 @@
     "start": "node dist/server/index.js",
     "test": "node --import tsx --test test/*.test.ts"
   },
-  "dependencies": { "chokidar": "^4.0.0", "express": "^4.21.0" },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "express": "^4.21.0"
+  },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.0.0",
@@ -20,6 +25,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "concurrently": "^9.0.0",
+    "pngjs": "^7.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "tsx": "^4.19.0",
