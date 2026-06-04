@@ -374,3 +374,15 @@
 }
 .setting-row small { color: #9a8d78; }
 .setting-warn { color: #ffb84d; font-style: normal; }
+
+.detail-summarize {
+  margin-top: 12px;
+  margin-right: 8px;
+  background: #243a2c;
+  color: #d7f2e0;
+  border: 1px solid #3c5c46;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.detail-summarize:disabled { opacity: 0.6; cursor: default; }
