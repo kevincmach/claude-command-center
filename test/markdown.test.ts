@@ -9,8 +9,20 @@ test('renders headings, bold, bullets, checkboxes, inline code', () => {
   assert.match(html, /<h2>Summary<\/h2>/)
   assert.match(html, /<strong>TL;DR:<\/strong> hi <code>x<\/code>/)
   assert.match(html, /<li>a<\/li>/)
-  assert.match(html, /☐ todo/)
-  assert.match(html, /☑ done/)
+  assert.match(html, /<span class="box">☐<\/span> todo/)
+  assert.match(html, /<span class="box on">☑<\/span> done/)
+})
+
+test('a bold-only line becomes a section heading; TL;DR becomes a callout', () => {
+  const html = renderMarkdown('**TL;DR:** done it\n\n**What got done**\n\n- a')
+  assert.match(html, /<p class="tldr">/)
+  assert.match(html, /<h3 class="sec">What got done<\/h3>/)
+})
+
+test('checkbox items render as styled chips', () => {
+  const html = renderMarkdown('- [ ] todo\n- [x] done')
+  assert.match(html, /<span class="box">☐<\/span>/)
+  assert.match(html, /<span class="box on">☑<\/span>/)
 })
 
 test('escapes HTML to prevent injection', () => {
