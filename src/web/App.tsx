@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Session } from '../shared/types.js'
 import { subscribe } from './api.js'
 import { appendEvent, type FeedItem } from './activityFeed.js'
@@ -10,6 +10,8 @@ export function App() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [activity, setActivity] = useState<FeedItem[]>([])
+  // Monotonic counter → unique feed ids even when two changes share updatedAt.
+  const seqRef = useRef(0)
 
   useEffect(() => {
     return subscribe(
@@ -24,8 +26,9 @@ export function App() {
           copy[i] = s
           return copy
         })
+        const seq = (seqRef.current += 1)
         setActivity((prev) =>
-          appendEvent(prev, { kind: kind as FeedItem['kind'], s }, ACTIVITY_CAP),
+          appendEvent(prev, { kind: kind as FeedItem['kind'], s, seq }, ACTIVITY_CAP),
         )
       },
     )

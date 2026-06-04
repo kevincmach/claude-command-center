@@ -30,8 +30,8 @@ function sess(over: Partial<Session>): Session {
 }
 
 test('appends newest-first', () => {
-  const a = appendEvent([], { kind: 'created', s: sess({ sessionId: 'a', updatedAt: 1 }) }, 200)
-  const b = appendEvent(a, { kind: 'created', s: sess({ sessionId: 'b', updatedAt: 2 }) }, 200)
+  const a = appendEvent([], { kind: 'created', s: sess({ sessionId: 'a' }), seq: 1 }, 200)
+  const b = appendEvent(a, { kind: 'created', s: sess({ sessionId: 'b' }), seq: 2 }, 200)
   assert.equal(b[0].sessionId, 'b')
   assert.equal(b[1].sessionId, 'a')
 })
@@ -39,7 +39,7 @@ test('appends newest-first', () => {
 test('caps at the limit, dropping the oldest', () => {
   let list: FeedItem[] = []
   for (let i = 1; i <= 5; i++) {
-    list = appendEvent(list, { kind: 'updated', s: sess({ sessionId: `s${i}`, updatedAt: i }) }, 2)
+    list = appendEvent(list, { kind: 'updated', s: sess({ sessionId: `s${i}` }), seq: i }, 2)
   }
   assert.equal(list.length, 2)
   assert.equal(list[0].sessionId, 's5')
@@ -47,22 +47,30 @@ test('caps at the limit, dropping the oldest', () => {
 })
 
 test('maps created → appeared', () => {
-  const [item] = appendEvent([], { kind: 'created', s: sess({}) }, 10)
+  const [item] = appendEvent([], { kind: 'created', s: sess({}), seq: 1 }, 10)
   assert.equal(item.label, 'appeared')
 })
 
 test('maps ended → ended', () => {
-  const [item] = appendEvent([], { kind: 'ended', s: sess({}) }, 10)
+  const [item] = appendEvent([], { kind: 'ended', s: sess({}), seq: 1 }, 10)
   assert.equal(item.label, 'ended')
 })
 
 test('maps updated → the activity', () => {
-  const [item] = appendEvent([], { kind: 'updated', s: sess({ activity: 'planning' }) }, 10)
+  const [item] = appendEvent([], { kind: 'updated', s: sess({ activity: 'planning' }), seq: 1 }, 10)
   assert.equal(item.label, '→ planning')
 })
 
-test('carries project name and a stable id', () => {
-  const [item] = appendEvent([], { kind: 'created', s: sess({ sessionId: 'x', updatedAt: 7, project: { name: 'acme', cwd: '/acme' } }) }, 10)
+test('carries project name and a seq-based id', () => {
+  const [item] = appendEvent([], { kind: 'created', s: sess({ sessionId: 'x', project: { name: 'acme', cwd: '/acme' } }), seq: 3 }, 10)
   assert.equal(item.project, 'acme')
-  assert.equal(item.id, 'x:7:created')
+  assert.equal(item.id, 'x:3')
+})
+
+test('ids stay unique across updates with an identical updatedAt (no key collision)', () => {
+  // A time-driven live→stale transition re-emits 'updated' without bumping
+  // updatedAt; the seq counter must keep the React keys distinct.
+  const a = appendEvent([], { kind: 'updated', s: sess({ sessionId: 'z', updatedAt: 5 }), seq: 1 }, 10)
+  const b = appendEvent(a, { kind: 'updated', s: sess({ sessionId: 'z', updatedAt: 5 }), seq: 2 }, 10)
+  assert.notEqual(b[0].id, b[1].id)
 })

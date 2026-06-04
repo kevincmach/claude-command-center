@@ -13,14 +13,17 @@ export interface FeedItem {
 
 /**
  * Turn an SSE change into a capped, newest-first feed list.
- * Pure: no Date/random — `id` is derived from sessionId + updatedAt + kind.
+ * Pure: no Date/random. `seq` is a caller-supplied monotonic counter — it's the
+ * uniqueness source for `id`, because the server can emit several `updated`
+ * events for one session without bumping `updatedAt` (e.g. a time-driven
+ * live→stale transition), so updatedAt alone would collide as a React key.
  */
 export function appendEvent(
   list: FeedItem[],
-  ev: { kind: FeedKind; s: Session },
+  ev: { kind: FeedKind; s: Session; seq: number },
   cap: number,
 ): FeedItem[] {
-  const { kind, s } = ev
+  const { kind, s, seq } = ev
   const label =
     kind === 'created'
       ? 'appeared'
@@ -28,7 +31,7 @@ export function appendEvent(
         ? 'ended'
         : `→ ${s.activity}`
   const item: FeedItem = {
-    id: `${s.sessionId}:${s.updatedAt}:${kind}`,
+    id: `${s.sessionId}:${seq}`,
     sessionId: s.sessionId,
     project: s.project.name,
     kind,
