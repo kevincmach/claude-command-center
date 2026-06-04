@@ -60,11 +60,12 @@ cross-platform, no cloud.
 - **Stack:** TypeScript · Node + Express · React + Vite · React built-in state ·
   SSE · `node:test` · `npx`. Chosen as industry-standard, well-documented,
   transferable tech (see Tier 0 spec for rationale).
-- **Read-only until Tier 3.** Safe by default; control is explicit and opt-in.
+- **Read-only until the control tier (now Tier 5).** Safe by default; control is
+  explicit and opt-in.
 - **Privacy first.** Vault logs metadata/titles/events by default, not raw prompt
   content (transcripts can contain secrets); content logging is opt-in.
 - **LAN security posture.** Default bind `127.0.0.1`; LAN exposure (`--lan`) is
-  explicit and documented "trusted networks only." Auth arrives with control (Tier 3).
+  explicit and documented "trusted networks only." Auth arrives with control (Tier 5).
 - **Isolated, testable units.** Each component has one job and a clear interface.
 
 ## Tiers (each ships independently)
@@ -87,23 +88,29 @@ whiteboard, YOLO badge (bypassPermissions), queued-message inbox stack, live
 to-do whiteboard, skill/MCP props, sound.
 **Ships:** the "make it fun" layer.
 
-### Tier 3 — Phone Cockpit
-Push notifications when a session needs you, two-kinds-of-waiting detection
-(permission vs. asked-a-question), tap-a-character to act (answer permission /
-nudge / pause / kill) by riding Claude Code's first-party Remote Control bridge
-(`bridgeSessionId` / `peerProtocol`). Adds auth.
-**Ships:** run your whole fleet from the couch.
+> **Reordered 2026-06-03:** Phone Cockpit (control) was Tier 3; Kevin deprioritized
+> it (heaviest tier — auth + Remote Control bridge — and least wanted for now), so it
+> moves to last. Knowledge & Analytics is promoted to next: it builds directly on the
+> vault + live state already shipped, adds no new bridge/auth surface, and is the
+> "automatic second brain" differentiator. New order below.
 
-### Tier 4 — Knowledge & Analytics
+### Tier 3 — Knowledge & Analytics  *(was Tier 4 — promoted to next)*
 Obsidian KB layer 2: optional AI-distilled session summaries (toggle, needs API
 key). Analytics: token spend over time, per-project stats, session replay,
 leaderboards.
 **Ships:** the second brain + insights.
 
-### Tier 5 — Share & Multiplayer
+### Tier 4 — Share & Multiplayer  *(was Tier 5)*
 Cross-platform hardening, install flow, GitHub release docs, optional shared team
 floor (teammates see the same office over LAN).
 **Ships:** the public, shareable "ultimate toolkit."
+
+### Tier 5 — Phone Cockpit  *(was Tier 3 — deprioritized to last)*
+Push notifications when a session needs you, two-kinds-of-waiting detection
+(permission vs. asked-a-question), tap-a-character to act (answer permission /
+nudge / pause / kill) by riding Claude Code's first-party Remote Control bridge
+(`bridgeSessionId` / `peerProtocol`). Adds auth.
+**Ships:** run your whole fleet from the couch.
 
 ## Selected features → tier map
 
@@ -114,9 +121,9 @@ floor (teammates see the same office over LAN).
 | Office rooms + activity→room + nameplate + attention glow | 1 |
 | Walking animation, pixel sprites, model costumes | 2 |
 | Plan-mode whiteboard, YOLO badge, queued inbox, todo whiteboard, skill/MCP props | 2 |
-| Phone push, two-kinds-of-waiting, tap-to-act control | 3 |
-| AI-distilled summaries, analytics/replay/leaderboards | 4 |
-| Shared team floor, install/release hardening | 5 |
+| AI-distilled summaries, analytics/replay/leaderboards | 3 |
+| Shared team floor, install/release hardening | 4 |
+| Phone push, two-kinds-of-waiting, tap-to-act control | 5 |
 
 ## Process
 
