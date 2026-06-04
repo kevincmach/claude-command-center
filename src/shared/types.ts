@@ -66,4 +66,20 @@ export interface Config {
   pollIntervalMs: number
   staleIdleMs: number
   logContent: boolean
+  summaryModel: string
+  claudeBin: string
+  settingsPath: string
+}
+
+export interface Settings {
+  summaries: boolean
+}
+
+export type SummaryStatus = 'written' | 'skipped' | 'disabled' | 'error'
+
+export interface SummaryResult {
+  ok: boolean
+  status: SummaryStatus
+  tldr?: string
+  error?: string
 }

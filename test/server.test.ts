@@ -18,6 +18,9 @@ const cfg: Config = {
   pollIntervalMs: 9999,
   staleIdleMs: 5 * 60_000,
   logContent: false,
+  summaryModel: 'haiku',
+  claudeBin: 'claude',
+  settingsPath: '/tmp/ccc-test-settings.json',
 }
 
 test('GET /api/state returns the current sessions', async () => {

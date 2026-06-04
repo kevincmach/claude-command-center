@@ -15,6 +15,9 @@ const cfg: Config = {
   pollIntervalMs: 1000,
   staleIdleMs: 5 * 60_000,
   logContent: false,
+  summaryModel: 'haiku',
+  claudeBin: 'claude',
+  settingsPath: '/tmp/ccc-test-settings.json',
 }
 
 test('refresh builds normalized sessions from fixtures', async () => {
