@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import type { Session } from '../../shared/types.js'
 import { projectColor } from '../projectColor.js'
 import { agentName } from '../agentName.js'
+import { permissionBadge } from '../badges.js'
 import characterSprite from '../assets/character.png'
 
 const IDLE: ReadonlySet<string> = new Set(['idle', 'done', 'unknown', 'planning'])
@@ -34,6 +35,7 @@ export function Character({
   const ringStyle = { '--ring': color } as CSSProperties
   const name = agentName(s.sessionId)
   const work = s.title ?? PHRASE[s.activity] ?? s.activity
+  const badge = permissionBadge(s.permissionMode)
 
   return (
     <button
@@ -42,6 +44,11 @@ export function Character({
       onClick={() => onSelect(s)}
     >
       {waiting && <span className="bubble">❗</span>}
+      {badge && (
+        <span className="char-badge" title={badge.label}>
+          {badge.icon}
+        </span>
+      )}
       <span className="speech">
         <b>{name}</b> · {s.project.name}
         <br />
