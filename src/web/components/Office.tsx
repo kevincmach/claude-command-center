@@ -1,12 +1,18 @@
-import { useState } from 'react'
 import type { Session } from '../../shared/types.js'
 import { ROOMS, roomForActivity, type RoomId } from '../rooms.js'
 import { Room } from './Room.js'
-import { CharacterDetail } from './CharacterDetail.js'
 
-export function Office({ sessions }: { sessions: Session[] }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-
+// Presentational: selection state lives in the shell now. Office just groups
+// sessions into rooms and reports clicks via onSelect.
+export function Office({
+  sessions,
+  selectedId,
+  onSelect,
+}: {
+  sessions: Session[]
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) {
   if (sessions.length === 0) {
     return (
       <p className="empty">
@@ -19,28 +25,17 @@ export function Office({ sessions }: { sessions: Session[] }) {
   for (const r of ROOMS) byRoom.set(r.id, [])
   for (const s of sessions) byRoom.get(roomForActivity(s.activity))!.push(s)
 
-  // Re-resolve the selected session each render so it reflects live updates,
-  // and disappears (popover closes) if that session ended.
-  const selected = selectedId
-    ? (sessions.find((s) => s.sessionId === selectedId) ?? null)
-    : null
-
   return (
-    <>
-      <div className="office">
-        {ROOMS.map((r) => (
-          <Room
-            key={r.id}
-            room={r}
-            sessions={byRoom.get(r.id)!}
-            onSelect={(s) => setSelectedId(s.sessionId)}
-          />
-        ))}
-      </div>
-
-      {selected && (
-        <CharacterDetail s={selected} onClose={() => setSelectedId(null)} />
-      )}
-    </>
+    <div className="office">
+      {ROOMS.map((r) => (
+        <Room
+          key={r.id}
+          room={r}
+          sessions={byRoom.get(r.id)!}
+          selectedId={selectedId}
+          onSelect={(s) => onSelect(s.sessionId)}
+        />
+      ))}
+    </div>
   )
 }
