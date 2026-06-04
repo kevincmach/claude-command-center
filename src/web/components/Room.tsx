@@ -8,10 +8,12 @@ export function Room({
   room,
   sessions,
   onSelect,
+  selectedId = null,
 }: {
   room: RoomDef
   sessions: Session[]
   onSelect: (s: Session) => void
+  selectedId?: string | null
 }) {
   const hot = sessions.some(
     (s) =>
@@ -40,7 +42,12 @@ export function Room({
         </div>
         <div className="crew">
           {sessions.map((s) => (
-            <Character key={s.sessionId} s={s} onSelect={onSelect} />
+            <Character
+              key={s.sessionId}
+              s={s}
+              onSelect={onSelect}
+              selected={s.sessionId === selectedId}
+            />
           ))}
         </div>
       </div>
