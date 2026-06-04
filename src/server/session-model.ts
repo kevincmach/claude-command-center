@@ -6,6 +6,11 @@ import { classifyLiveness, isProcessAlive } from './liveness.js'
 import { findTranscriptPath, readTranscriptInfo } from './transcript-reader.js'
 import { classifyActivity } from './activity-classifier.js'
 import { contextLimit, computeContext, estimateCost } from './cost-model.js'
+import { SUMMARIZER_CWD } from './config.js'
+
+export function isSelfSummarizer(rec: RegistryRecord): boolean {
+  return rec.cwd === SUMMARIZER_CWD
+}
 
 export type SessionEvent =
   | { kind: 'created'; session: Session }
@@ -80,6 +85,7 @@ export class SessionStore {
     const events: SessionEvent[] = []
 
     for (const rec of recs) {
+      if (isSelfSummarizer(rec)) continue
       seen.add(rec.sessionId)
       const next = await buildSession(
         rec,
