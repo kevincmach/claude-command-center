@@ -25,8 +25,11 @@ as a `## Summary` section in `Sessions/<sessionId>.md`.
   touched, Open / next steps.
 - **Model input:** a **distilled extract** (prompts, ai-titles, tool names + brief args,
   final assistant messages), capped — not the raw transcript.
-- **Opt-in:** off by default. Enabling sends distilled content to Anthropic via the CLI,
-  so it stays explicit + is announced on startup.
+- **Opt-in + runtime toggle:** off by default, and flipped on/off at runtime from a ⚙
+  settings panel (persisted to `settings.json`) — **no restart**. `SummaryService` reads
+  the **live** setting, so both auto + manual paths respect it. This toggle is the first
+  brick of a future navigation/management system (see roadmap). Enabling sends distilled
+  content to Anthropic via the CLI, so it stays explicit + is announced when turned on.
 
 ## Architecture & data flow
 
@@ -79,48 +82,79 @@ affects monitoring (same contract as `EventLog.record`).
 - `hasSummary(vault: string, sessionId: string): boolean` — true if the page already
   contains a `## Summary` heading (used by the auto idempotency guard).
 
+### `src/server/settings.ts` *(new — runtime, user-mutable prefs; persisted)*
+- `interface Settings { summaries: boolean }` (extensible — future toggles land here).
+- `class SettingsStore { constructor(file: string, defaults: Settings) }` — loads `file`
+  on construct (missing/corrupt → `defaults`), caches in memory. `get(): Settings`;
+  `patch(partial: Partial<Settings>): Settings` merges, writes the file (best-effort, never
+  throws), returns the new value. This is the single source of truth for the toggle —
+  distinct from launch-time `Config`.
+
 ### `src/server/summary-service.ts` *(new — coordinator)*
-- `class SummaryService { constructor(cfg, run: SummaryRunner) }`
+- `class SummaryService { constructor(cfg: Config, settings: SettingsStore, run: SummaryRunner) }`
 - `async maybeSummarize(session: Session, opts?: { force?: boolean }): Promise<SummaryResult>`
   where `SummaryResult = { ok: boolean; status: 'written'|'skipped'|'disabled'|'error'; error?: string }`.
-  - Guards (in order): `cfg.summaries` off → `disabled`; auto (`!force`) and
-    `hasSummary(...)` → `skipped`; transcript distills to `''` → `skipped`.
+  - Guards (in order): **`settings.get().summaries` off → `disabled`** (read live, every
+    call); auto (`!force`) and `hasSummary(...)` → `skipped`; transcript distills to `''`
+    → `skipped`.
   - Else: `distillTranscript` → `summarize` → `writeSummary` → `written`.
   - Whole body in try/catch → on throw, log once + return `{ ok:false, status:'error' }`.
 
 ## Touched existing units
 
-- **`src/shared/types.ts`** — extend `Config` with `summaries: boolean`,
-  `summaryModel: string`, `claudeBin: string`.
-- **`src/server/config.ts`** — parse `--summaries` flag / `CCC_SUMMARIES=1` env (default
-  `false`); `--summary-model` / `CCC_SUMMARY_MODEL` (default `'haiku'`); `--claude-bin` /
-  `CCC_CLAUDE_BIN` (default `'claude'`). Export `SUMMARIZER_CWD` constant
-  (`path.join(os.tmpdir(), 'ccc-summarizer')`).
+- **`src/shared/types.ts`** — extend launch `Config` with `summaryModel: string`,
+  `claudeBin: string`, `settingsPath: string`. **`summaries` is NOT here** — it lives in
+  the runtime `Settings` (in `settings.ts`), the user-mutable source of truth.
+- **`src/server/config.ts`** — parse `--summary-model` / `CCC_SUMMARY_MODEL` (default
+  `'haiku'`); `--claude-bin` / `CCC_CLAUDE_BIN` (default `'claude'`); `--settings` /
+  `CCC_SETTINGS` (default `path.join(os.homedir(), '.claude-command-center', 'settings.json')`).
+  Export `SUMMARIZER_CWD` constant (`path.join(os.tmpdir(), 'ccc-summarizer')`).
 - **`src/server/session-model.ts`** — in `refresh`, **exclude registry records whose
   `cwd === SUMMARIZER_CWD`** (our own headless runs) before building sessions. This keeps
   summarizer invocations off the board *and* out of the `ended` trigger (no feedback loop).
-- **`src/server/index.ts`** — construct `SummaryService` (with `spawnClaudeRunner` when
-  `summaries` on & `claude` resolvable, else a no-op runner); on `ended` events call
-  `summaryService.maybeSummarize(session)`. On startup, if `summaries` on, log the
-  privacy line (below); if `claude` not found on PATH, log one warning + disable.
-- **`src/server/server.ts`** — add `POST /api/sessions/:id/summarize` → looks up the
-  session, calls `maybeSummarize(session, { force: true })`, returns `SummaryResult` JSON
-  (plus the digest's TL;DR line so the UI can show it).
-- **`src/web/api.ts`** — `summarizeSession(id): Promise<SummaryResult & { tldr?: string }>`.
-- **`src/web/components/CharacterDetail.tsx`** — a "↻ Summarize" button calling the
-  endpoint, with `idle | pending | done | error` state; on success show the returned TL;DR
-  inline (the full digest lives in the vault). Disabled/hidden gracefully if the endpoint
-  reports `disabled`.
+- **`src/server/index.ts`** — construct `SettingsStore(cfg.settingsPath, { summaries:false })`
+  and `SummaryService(cfg, settings, spawnClaudeRunner(cfg.claudeBin))`; on `ended` events
+  call `summaryService.maybeSummarize(session)`. On startup, if `settings.summaries` is on,
+  log the privacy line (below); if `claude` not found on PATH, log one warning (the service
+  still returns `error` per-call, the toggle stays usable).
+- **`src/server/server.ts`** — add three routes:
+  - `GET  /api/settings` → `{ ...settings, claudeAvailable: boolean }` (UI disables the
+    toggle if `claude` isn't on PATH).
+  - `PATCH /api/settings` → body `{ summaries?: boolean }` → `settings.patch(...)`, returns
+    the new settings; if turning on, log the privacy line.
+  - `POST /api/sessions/:id/summarize` → look up the session, call
+    `maybeSummarize(session, { force:true })`, return `SummaryResult` + the digest's TL;DR.
+- **`src/web/api.ts`** — `getSettings()`, `updateSettings(patch)`, and
+  `summarizeSession(id): Promise<SummaryResult & { tldr?: string }>`.
+- **`src/web/App.tsx`** — a ⚙ gear button in the header that opens `SettingsPanel`; fetch
+  settings on mount, hold in state.
+- **`src/web/components/SettingsPanel.tsx`** *(new)* — small panel/modal listing toggles;
+  for now one row: **“AI session summaries (uses local Claude Code)”** bound to
+  `settings.summaries`, calling `updateSettings({ summaries })` on change; disabled with a
+  hint when `claudeAvailable` is false. Built to grow into the nav system.
+- **`src/web/components/CharacterDetail.tsx`** — a “↻ Summarize” button calling
+  `summarizeSession`, with `idle | pending | done | error` state; on success show the
+  returned TL;DR inline (full digest lives in the vault). Hidden/disabled when summaries
+  are off.
 
 ## Config & privacy
 
+**Runtime `Settings`** (user-mutable via the ⚙ panel, persisted to `settings.json`):
+
+| Field | Default | Changed via |
+| --- | --- | --- |
+| `summaries` | `false` (opt-in) | ⚙ settings panel → `PATCH /api/settings` |
+
+**Launch `Config`** (immutable for the process):
+
 | Field | Default | Source |
 | --- | --- | --- |
-| `summaries` | `false` (opt-in) | `--summaries` · `CCC_SUMMARIES=1` · config |
 | `summaryModel` | `'haiku'` | `--summary-model` · `CCC_SUMMARY_MODEL` · config |
 | `claudeBin` | `'claude'` | `--claude-bin` · `CCC_CLAUDE_BIN` · config |
+| `settingsPath` | `~/.claude-command-center/settings.json` | `--settings` · `CCC_SETTINGS` · config |
 
-- **Off by default.** When on, startup logs exactly once:
+- **Off by default.** Whenever summaries become enabled (on startup if already on, or on a
+  `PATCH` that turns it on), log exactly once:
   `summaries ON — distilled transcript content is sent to Anthropic via "claude -p" (<model>)`.
 - We send a **distilled extract**, not raw transcripts — lowers (does not eliminate)
   secret exposure; documented honestly in the README.
@@ -155,12 +189,17 @@ affects monitoring (same contract as `EventLog.record`).
 - **`summarizer`** — with an injected fake `run`: passes the right `model` + `source`,
   returns trimmed text; empty source → `''`; a throwing `run` propagates so the service
   can catch it.
-- **`summary-service`** — fake runner + temp vault: `summaries` off → `disabled`; auto +
-  existing summary → `skipped`; auto + none → `written`; `force` + existing → regenerates;
-  thrown error → `{ ok:false, status:'error' }`.
+- **`settings`** — `SettingsStore`: missing/corrupt file → defaults; `patch` merges +
+  persists (a fresh store reading the same file sees the new value); `patch` write failure
+  is swallowed (no throw).
+- **`summary-service`** — fake runner + fake/real `SettingsStore` + temp vault:
+  `summaries` off → `disabled`; toggling the store on (no restart) → next call proceeds;
+  auto + existing summary → `skipped`; auto + none → `written`; `force` + existing →
+  regenerates; thrown error → `{ ok:false, status:'error' }`.
 - **`session-model`** — a registry record with `cwd === SUMMARIZER_CWD` is excluded from
   the built sessions.
-- **`config`** — `summaries` / `summaryModel` / `claudeBin` parsed from flag + env.
+- **`config`** — `summaryModel` / `claudeBin` / `settingsPath` parsed from flag + env
+  (with defaults).
 
 ## Implementation notes
 

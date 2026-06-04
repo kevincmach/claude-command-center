@@ -112,6 +112,15 @@ nudge / pause / kill) by riding Claude Code's first-party Remote Control bridge
 (`bridgeSessionId` / `peerProtocol`). Adds auth.
 **Ships:** run your whole fleet from the couch.
 
+## Emerging direction — Navigation & Management system *(parking lot, not yet scheduled)*
+
+A first-class in-app navigation/settings surface for *managing* Claude Code from the
+dashboard: feature toggles, preferences, and per-aspect control panels (not just the
+office view). Kevin's idea (2026-06-03); scope TBD in its own brainstorm. **First brick
+already landing in Tier 3a:** a ⚙ settings panel with the AI-summaries on/off toggle
+(runtime `Settings` store + `GET`/`PATCH /api/settings`). Future toggles/aspects extend
+the same panel + store.
+
 ## Selected features → tier map
 
 | Feature | Tier |
