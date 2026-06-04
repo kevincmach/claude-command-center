@@ -61,6 +61,7 @@ test('writes a summary when on, then skips on the auto path, regenerates on forc
   const first = await svc.maybeSummarize(session)
   assert.equal(first.status, 'written')
   assert.equal(first.tldr, 'Did the thing.')
+  assert.match(first.path!, /Sessions[/\\]aaaa1111\.md$/)
   assert.match(
     fs.readFileSync(path.join(vault, 'Sessions', 'aaaa1111.md'), 'utf8'),
     /## Summary[\s\S]*Did the thing\./,

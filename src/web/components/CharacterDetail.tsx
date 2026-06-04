@@ -14,6 +14,7 @@ export function CharacterDetail({
   const [sum, setSum] = useState<{
     state: 'idle' | 'pending' | 'done' | 'error'
     tldr?: string
+    path?: string
     error?: string
   }>({ state: 'idle' })
 
@@ -24,7 +25,7 @@ export function CharacterDetail({
       if (r.status === 'disabled') {
         setSum({ state: 'error', error: 'summaries are off — enable in ⚙' })
       } else if (r.ok && r.status === 'written') {
-        setSum({ state: 'done', tldr: r.tldr })
+        setSum({ state: 'done', tldr: r.tldr, path: r.path })
       } else if (r.ok) {
         setSum({ state: 'done' }) // skipped (e.g. nothing to summarize)
       } else {
@@ -66,7 +67,20 @@ export function CharacterDetail({
           {sum.state === 'pending' ? '… summarizing' : '↻ Summarize'}
         </button>
         {sum.state === 'done' && (
-          <p className="detail-row">📝 {sum.tldr ?? 'written to vault'}</p>
+          <>
+            <p className="detail-row">📝 {sum.tldr ?? 'summary written'}</p>
+            <p className="detail-row">
+              <a
+                className="vault-link"
+                href={`/api/sessions/${s.sessionId}/page`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                open summary ↗
+              </a>
+              {sum.path && <span className="vault-path"> · {sum.path}</span>}
+            </p>
+          </>
         )}
         {sum.state === 'error' && <p className="detail-row">⚠ {sum.error}</p>}
         <button className="detail-close" onClick={onClose}>

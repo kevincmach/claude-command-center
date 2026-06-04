@@ -3,11 +3,13 @@ import type { SessionStore } from './session-model.js'
 import type { Hub } from './watcher.js'
 import type { SettingsStore } from './settings.js'
 import type { SummaryService } from './summary-service.js'
+import { readSessionPage } from './summary-writer.js'
 
 export interface ServerDeps {
   settings: SettingsStore
   summaryService: SummaryService
   claudeAvailable: boolean
+  vaultPath: string
   onSummariesEnabled?: () => void
 }
 
@@ -53,6 +55,20 @@ export function createServer(
     const next = deps.settings.patch(patch)
     if (wasOff && next.summaries) deps.onSummariesEnabled?.()
     res.json({ ...next, claudeAvailable: deps.claudeAvailable })
+  })
+
+  app.get('/api/sessions/:id/page', (req, res) => {
+    const id = req.params.id
+    if (!/^[\w-]+$/.test(id)) {
+      res.status(400).type('text/plain').send('bad id')
+      return
+    }
+    const md = readSessionPage(deps.vaultPath, id)
+    if (md == null) {
+      res.status(404).type('text/plain').send('no vault page yet')
+      return
+    }
+    res.type('text/markdown; charset=utf-8').send(md)
   })
 
   app.post('/api/sessions/:id/summarize', async (req, res) => {

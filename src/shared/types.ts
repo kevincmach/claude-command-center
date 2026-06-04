@@ -81,5 +81,6 @@ export interface SummaryResult {
   ok: boolean
   status: SummaryStatus
   tldr?: string
+  path?: string
   error?: string
 }

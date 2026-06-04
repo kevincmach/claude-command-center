@@ -38,6 +38,17 @@ export function hasSummary(vault: string, sessionId: string): boolean {
   }
 }
 
+export function readSessionPage(
+  vault: string,
+  sessionId: string,
+): string | null {
+  try {
+    return fs.readFileSync(sessionFile(vault, sessionId), 'utf8')
+  } catch {
+    return null
+  }
+}
+
 export function writeSummary(
   vault: string,
   sessionId: string,

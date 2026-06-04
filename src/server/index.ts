@@ -47,6 +47,7 @@ export function main(argv = process.argv.slice(2)): void {
     settings,
     summaryService,
     claudeAvailable,
+    vaultPath: cfg.vaultPath,
     onSummariesEnabled: announceSummaries,
   })
 

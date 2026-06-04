@@ -386,3 +386,14 @@
   cursor: pointer;
 }
 .detail-summarize:disabled { opacity: 0.6; cursor: default; }
+
+.vault-link {
+  color: #6fd3a0;
+  text-decoration: underline;
+  font-size: 13px;
+}
+.vault-path {
+  font-size: 10px;
+  color: #7a6a55;
+  word-break: break-all;
+}

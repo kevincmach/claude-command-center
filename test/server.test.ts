@@ -31,7 +31,13 @@ function makeDeps(summaries: boolean, claudeAvailable = false) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccc-srv-'))
   const settings = new SettingsStore(path.join(dir, 's.json'), { summaries })
   const summaryService = new SummaryService(cfg, settings, async () => '**TL;DR:** x')
-  return { settings, summaryService, claudeAvailable }
+  const vaultPath = path.join(dir, 'vault')
+  fs.mkdirSync(path.join(vaultPath, 'Sessions'), { recursive: true })
+  fs.writeFileSync(
+    path.join(vaultPath, 'Sessions', 'aaaa1111.md'),
+    '# Session\n\n## Summary\n\nhello vault\n',
+  )
+  return { settings, summaryService, claudeAvailable, vaultPath }
 }
 
 test('GET /api/state returns the current sessions', async () => {
@@ -58,6 +64,20 @@ test('GET /api/settings returns settings + claudeAvailable', async () => {
   const body = (await res.json()) as { summaries: boolean; claudeAvailable: boolean }
   assert.equal(body.summaries, false)
   assert.equal(body.claudeAvailable, true)
+  srv.close()
+})
+
+test('GET /api/sessions/:id/page serves the vault markdown; 404 when missing', async () => {
+  const store = new SessionStore(cfg, () => 1780459165000)
+  await store.refresh()
+  const app = createServer(store, new Hub(store), here, makeDeps(false))
+  const srv = app.listen(0)
+  const { port } = srv.address() as AddressInfo
+  const ok = await fetch(`http://127.0.0.1:${port}/api/sessions/aaaa1111/page`)
+  assert.equal(ok.status, 200)
+  assert.match(await ok.text(), /hello vault/)
+  const missing = await fetch(`http://127.0.0.1:${port}/api/sessions/ghost/page`)
+  assert.equal(missing.status, 404)
   srv.close()
 })
 

@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { Config, Session, SummaryResult } from '../shared/types.js'
 import { discover } from './discovery.js'
 import { findTranscriptPath } from './transcript-reader.js'
@@ -41,7 +42,12 @@ export class SummaryService {
       if (!summary) return { ok: true, status: 'skipped' }
 
       writeSummary(this.cfg.vaultPath, session.sessionId, summary)
-      return { ok: true, status: 'written', tldr: tldrOf(summary) }
+      const file = path.join(
+        this.cfg.vaultPath,
+        'Sessions',
+        `${session.sessionId}.md`,
+      )
+      return { ok: true, status: 'written', tldr: tldrOf(summary), path: file }
     } catch (e) {
       return {
         ok: false,
